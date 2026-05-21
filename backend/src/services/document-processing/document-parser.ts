@@ -5,6 +5,7 @@ import { parseDocx } from './parsers/docx.parser';
 import { parseCsv } from './parsers/csv.parser';
 import { parseText } from './parsers/text.parser';
 import { parseHtml } from './parsers/html.parser';
+import { parseWithMarkitdown } from './parsers/markitdown.parser';
 import path from 'path';
 
 export type ParseResult = {
@@ -50,35 +51,54 @@ export async function parseDocument(buffer: Buffer, filename: string, mimeType?:
   try {
     switch (ext) {
       case '.pdf': {
+        // 1) Try native unpdf parser first
         const result = await parsePdf(buffer, filename);
-        const warning = (result.metadata as any).warning || '';
-if (!result.text && warning.toLowerCase().includes('ocr')) {
+        if (result.text && result.text.length >= 20) {
+          return { success: true, document: result };
+        }
+        // 2) If native failed, try MarkItDown as fallback
+        const mdResult = await parseWithMarkitdown(buffer, filename);
+        if (mdResult?.text && mdResult.text.length >= 20) {
+          return { success: true, document: mdResult };
+        }
+        // 3) Both failed
+        if (result.metadata.warning?.toLowerCase().includes('ocr')) {
           return { success: true, document: result, needsOcr: true };
         }
         return { success: true, document: result };
       }
 
       case '.docx': {
-        const result = await parseDocx(buffer, filename);
-        return { success: true, document: result };
+        // 1) Try mammoth first
+        const docxResult = await parseDocx(buffer, filename);
+        if (docxResult.text && docxResult.text.length >= 20) {
+          return { success: true, document: docxResult };
+        }
+        // 2) Fallback to MarkItDown
+        const mdDocx = await parseWithMarkitdown(buffer, filename);
+        if (mdDocx?.text) return { success: true, document: mdDocx };
+        return { success: true, document: docxResult };
       }
 
       case '.csv': {
-        const result = await parseCsv(buffer, filename);
-        return { success: true, document: result };
+        const csvResult = await parseCsv(buffer, filename);
+        return { success: true, document: csvResult };
       }
 
       case '.md':
       case '.txt': {
-        const result = await parseText(buffer, filename);
-        return { success: true, document: result };
+        const textResult = await parseText(buffer, filename);
+        return { success: true, document: textResult };
       }
 
       default: {
         if (mimeType?.startsWith('text/html') || mimeType?.startsWith('application/xhtml')) {
-          const result = await parseHtml(buffer, filename);
-          return { success: true, document: result };
+          const htmlResult = await parseHtml(buffer, filename);
+          return { success: true, document: htmlResult };
         }
+        // Unknown type: try MarkItDown as last resort
+        const mdFallback = await parseWithMarkitdown(buffer, filename);
+        if (mdFallback?.text) return { success: true, document: mdFallback };
         return { success: false, error: `Unsupported file type: ${ext}` };
       }
     }

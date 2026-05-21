@@ -20,8 +20,8 @@ function detectBrowserLanguage(): Language {
 }
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
+  // Estado inicial: español por defecto, traducciones vacías hasta cargar
   const [lang, setLangState] = useState<Language>('es');
-  const [mounted, setMounted] = useState(false);
   const [translations, setTranslations] = useState<Record<string, string>>({});
 
   // Carga las traducciones y detecta idioma al montar
@@ -29,10 +29,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     const saved = localStorage.getItem('chatmbl-lang') as Language | null;
     const detected = saved || detectBrowserLanguage();
     setLangState(detected);
+    document.documentElement.lang = detected;
     import('./translations').then((mod) => {
       setTranslations(mod.translations[detected]);
     });
-    setMounted(true);
   }, []);
 
   // Cambia idioma y persiste la preferencia
@@ -42,7 +42,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     import('./translations').then((mod) => {
       setTranslations(mod.translations[newLang]);
     });
-    // Actualiza el atributo lang del HTML
     document.documentElement.lang = newLang;
   }, []);
 
@@ -50,10 +49,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const t = useCallback((key: string): string => {
     return translations[key] || key;
   }, [translations]);
-
-  if (!mounted) {
-    return <>{children}</>;
-  }
 
   return (
     <LanguageContext.Provider value={{ lang, setLang, t }}>
