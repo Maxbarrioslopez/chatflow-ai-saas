@@ -1,6 +1,6 @@
-# ChatFlow Documentation
+# ChatMBL Documentation
 
-Index of technical documentation for the ChatFlow AI SaaS Platform.
+Index of technical documentation for the ChatMBL AI SaaS Platform.
 
 ## Documents
 

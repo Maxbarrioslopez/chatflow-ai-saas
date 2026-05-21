@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { AuthController } from './auth.controller';
 import { validate } from '../../common/middleware/validate';
-import { loginSchema, registerSchema } from '@chatflow/shared';
+import { loginSchema, registerSchema } from '@chatmbl/shared';
 
 export const authRouter = Router();
 const controller = new AuthController();

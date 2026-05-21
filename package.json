@@ -1,8 +1,8 @@
 {
-  "name": "chatflow-saas",
+  "name": "chatmbl-saas",
   "version": "1.0.0",
   "private": true,
-  "description": "ChatFlow SaaS - Multi-tenant chatbot platform",
+  "description": "ChatMBL SaaS - Multi-tenant chatbot platform",
   "scripts": {
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:frontend": "npm run dev --workspace=frontend",

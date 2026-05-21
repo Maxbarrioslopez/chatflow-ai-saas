@@ -1,6 +1,6 @@
 # RAG Pipeline
 
-Real embedding-based Retrieval-Augmented Generation for ChatFlow chatbots.
+Real embedding-based Retrieval-Augmented Generation for ChatMBL chatbots.
 
 ## Architecture
 

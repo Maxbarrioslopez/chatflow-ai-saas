@@ -68,14 +68,14 @@ export default function ChatbotDetailPage() {
 
   const handleWidgetCode = () => {
     if (!chatbot) return '';
-    return `<script>
-  window.chatflowConfig = {
-    token: "${chatbot.widgetToken}",
-    position: "${chatbot.appearance?.position || 'right'}",
-    theme: "${chatbot.appearance?.theme || 'light'}"
-  };
-</script>
-<script src="https://cdn.chatflow.ai/widget.js" async></script>`;
+    const baseUrl = process.env.NEXT_PUBLIC_WIDGET_URL || window.location.origin;
+    return `<!-- ChatMBL Widget Embed -->
+<iframe
+  src="${baseUrl}/widget/${chatbot.widgetToken}"
+  style="position:fixed;bottom:20px;right:20px;width:400px;height:600px;border:none;z-index:999999;max-width:100vw;max-height:80vh;"
+  title="ChatMBL Assistant"
+  allow="clipboard-read; clipboard-write"
+></iframe>`;
   };
 
   const copyWidgetCode = () => {

@@ -25,7 +25,7 @@ class ApiClient {
   private getToken(): string | null {
     if (typeof window === 'undefined') return null;
     try {
-      const stored = localStorage.getItem('chatflow-auth');
+      const stored = localStorage.getItem('chatmbl-auth');
       if (!stored) return null;
       const parsed = JSON.parse(stored);
       return parsed?.state?.tokens?.accessToken || null;
@@ -70,7 +70,7 @@ class ApiClient {
       });
 
       if (response.status === 401) {
-        localStorage.removeItem('chatflow-auth');
+        localStorage.removeItem('chatmbl-auth');
         if (typeof window !== 'undefined') {
           window.location.href = '/login';
         }

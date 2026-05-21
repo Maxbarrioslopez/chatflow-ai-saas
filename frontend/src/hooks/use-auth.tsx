@@ -2,7 +2,8 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import { api } from '@/lib/api';
-import type { AuthUser, AuthTokens } from '@chatflow/shared';
+import { useAuthStore } from '@/stores/auth-store';
+import type { AuthUser, AuthTokens } from '@chatmbl/shared';
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -42,6 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setTokens(response.tokens);
     localStorage.setItem('auth_tokens', JSON.stringify(response.tokens));
     localStorage.setItem('auth_user', JSON.stringify(response.user));
+    useAuthStore.getState().setAuth(response.user, response.tokens);
   }, []);
 
   const register = useCallback(async (data: { name: string; email: string; password: string; organizationName: string }) => {
@@ -50,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setTokens(response.tokens);
     localStorage.setItem('auth_tokens', JSON.stringify(response.tokens));
     localStorage.setItem('auth_user', JSON.stringify(response.user));
+    useAuthStore.getState().setAuth(response.user, response.tokens);
   }, []);
 
   const logout = useCallback(() => {
@@ -57,6 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setTokens(null);
     localStorage.removeItem('auth_tokens');
     localStorage.removeItem('auth_user');
+    useAuthStore.getState().clearAuth();
   }, []);
 
   return (

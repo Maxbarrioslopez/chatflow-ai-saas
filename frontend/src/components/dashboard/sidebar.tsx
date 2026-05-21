@@ -92,7 +92,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-purple-600">
               <Zap className="h-4 w-4 text-white" />
             </div>
-            <span className="font-bold text-sidebar-foreground">ChatFlow</span>
+            <span className="font-bold text-sidebar-foreground">ChatMBL</span>
           </Link>
         )}
         {collapsed && (

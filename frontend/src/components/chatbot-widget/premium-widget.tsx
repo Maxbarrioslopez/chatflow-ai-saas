@@ -308,7 +308,7 @@ export function PremiumWidget({
         </div>
         {theme.showBranding && (
           <p className="text-[10px] text-center mt-2 opacity-40" style={{ color: theme.darkMode ? '#fff' : '#000' }}>
-            Powered by <span className="font-semibold" style={{ color: theme.primaryColor }}>ChatFlow</span>
+            Powered by <span className="font-semibold" style={{ color: theme.primaryColor }}>ChatMBL</span>
           </p>
         )}
       </div>

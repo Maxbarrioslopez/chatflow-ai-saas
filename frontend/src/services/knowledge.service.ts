@@ -81,7 +81,7 @@ export async function getStats(chatbotId: string): Promise<KnowledgeStats> {
 function getAuthToken(): string | null {
   if (typeof window === 'undefined') return null;
   try {
-    const stored = localStorage.getItem('chatflow-auth');
+    const stored = localStorage.getItem('chatmbl-auth');
     if (!stored) return null;
     const parsed = JSON.parse(stored);
     return parsed?.state?.tokens?.accessToken || null;

@@ -2,7 +2,7 @@
 
 ## Overview
 
-ChatFlow follows security best practices for SaaS applications. All sensitive operations are centralized in the backend.
+ChatMBL follows security best practices for SaaS applications. All sensitive operations are centralized in the backend.
 
 ## Authentication & Authorization
 

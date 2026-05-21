@@ -1,5 +1,5 @@
 {
-  "name": "@chatflow/shared",
+  "name": "@chatmbl/shared",
   "version": "1.0.0",
   "private": true,
   "main": "./dist/index.js",

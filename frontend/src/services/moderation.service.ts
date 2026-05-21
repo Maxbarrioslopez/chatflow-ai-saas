@@ -1,5 +1,5 @@
 import { api } from '@/lib/api';
-import type { ModerationRule, ModerationEvent } from '@chatflow/shared';
+import type { ModerationRule, ModerationEvent } from '@chatmbl/shared';
 
 export async function listRules(chatbotId: string): Promise<ModerationRule[]> {
   const res = await api.get<{ rules: ModerationRule[] }>(`/moderation/${chatbotId}/rules`);

@@ -121,6 +121,11 @@ export class ChatService {
     const { aiConfig } = chatbot;
     if (!aiConfig) return 'I am processing your request. Please wait...';
 
+    // Knowledge-only mode: retrieve context and respond only from knowledge base
+    if (aiConfig.knowledgeOnly) {
+      return this.callAIWithKnowledgeOnly(chatbot, message, organizationId, aiConfig);
+    }
+
     const conversation = await prisma.conversation.findFirst({
       where: { chatbotId: chatbot.id, status: 'active' },
       include: {
@@ -212,6 +217,56 @@ export class ChatService {
           status: 'new',
         },
       });
+    }
+  }
+
+  private async callAIWithKnowledgeOnly(chatbot: any, message: string, organizationId: string, aiConfig: any): Promise<string> {
+    const systemPrompt = aiConfig.systemPrompt || 'You are a helpful assistant.';
+
+    try {
+      const result = await ragService.semanticSearch(chatbot.id, organizationId, message, 5);
+
+      if (result.length === 0) {
+        return "I don't have information about that in my knowledge base. Please upload relevant documents first, or ask about something else.";
+      }
+
+      const context = result
+        .map((r) => `[Source: ${r.sourceName}]\n${r.content}`)
+        .join('\n\n---\n\n');
+
+      const knowledgePrompt = `${systemPrompt}\n\n## Knowledge Base Content\n${context}\n\nInstructions:
+- ONLY answer using the knowledge base content above.
+- If the user asks something not covered in the content, say you don't have that information.
+- Cite the source name when using information.
+- Do not use any external knowledge or prior training data.`;
+
+      const completion = await callChatCompletion([
+        { role: 'system', content: knowledgePrompt },
+        { role: 'user', content: message },
+      ], {
+        model: aiConfig.model || undefined,
+        temperature: Math.min(aiConfig.temperature || 0.3, 0.5),
+        maxTokens: aiConfig.maxTokens || 1024,
+      });
+
+      if (completion.usage) {
+        await prisma.tokenUsage.create({
+          data: {
+            organizationId,
+            chatbotId: chatbot.id,
+            promptTokens: completion.usage.promptTokens,
+            completionTokens: completion.usage.completionTokens,
+            totalTokens: completion.usage.totalTokens,
+            model: completion.model || aiConfig.model || 'unknown',
+            cost: (completion.usage.totalTokens / 1000000) * 3,
+          },
+        });
+      }
+
+      return completion.content || 'No response generated.';
+    } catch (error) {
+      console.error('[KnowledgeOnly] AI call failed:', error instanceof Error ? error.message : '');
+      return "I'm having trouble accessing the knowledge base. Please try again.";
     }
   }
 }

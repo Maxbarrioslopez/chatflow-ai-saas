@@ -7,7 +7,7 @@ import {
   updateModerationRuleSchema,
   bulkCreateModerationRulesSchema,
   testModerationSchema,
-} from '@chatflow/shared';
+} from '@chatmbl/shared';
 
 export const moderationRouter = Router();
 const controller = new ModerationController();

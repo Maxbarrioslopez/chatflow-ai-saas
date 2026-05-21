@@ -147,7 +147,7 @@ export function AppearanceEditor({ chatbotId, appearance }: AppearanceEditorProp
           <div className="flex items-center justify-between">
             <div>
               <Label>Show Branding</Label>
-              <p className="text-sm text-muted-foreground">Display "Powered by ChatFlow"</p>
+              <p className="text-sm text-muted-foreground">Display "Powered by ChatMBL"</p>
             </div>
             <Switch checked={form.showBranding} onCheckedChange={(v) => setForm({ ...form, showBranding: v })} />
           </div>

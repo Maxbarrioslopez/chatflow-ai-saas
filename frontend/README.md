@@ -1,4 +1,4 @@
-# ChatFlow Frontend
+# ChatMBL Frontend
 
 Next.js 14 (App Router) SaaS dashboard and embeddable chatbot widget.
 

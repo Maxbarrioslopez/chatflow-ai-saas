@@ -10,8 +10,8 @@ export function getAIConfig() {
         apiKey: config.ai.openrouterKey || '',
         defaultModel: config.ai.chatModel || 'openrouter/free',
         headers: {
-          'HTTP-Referer': 'https://chatflow.ai',
-          'X-Title': 'ChatFlow AI SaaS',
+          'HTTP-Referer': 'https://chatmbl.ai',
+          'X-Title': 'ChatMBL AI SaaS',
         },
       };
     case 'openai':

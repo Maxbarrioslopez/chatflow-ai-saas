@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '../../services/prisma';
 import { config } from '../../config';
 import { AppError } from '../../common/errors';
-import type { LoginInput, RegisterInput } from '@chatflow/shared';
+import type { LoginInput, RegisterInput } from '@chatmbl/shared';
 
 export class AuthService {
   async register(data: RegisterInput) {

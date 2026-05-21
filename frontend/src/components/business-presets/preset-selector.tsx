@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { BUSINESS_PRESETS } from '@chatflow/shared';
+import { BUSINESS_PRESETS } from '@chatmbl/shared';
 import { Sparkles } from 'lucide-react';
 
 interface PresetSelectorProps {

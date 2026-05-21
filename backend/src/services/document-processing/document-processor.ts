@@ -76,19 +76,15 @@ export async function processDocument(job: DocumentProcessingJob): Promise<void>
       const chunk = chunks[i];
       const vector = embeddings[i];
 
-      try {
-        await tx.$executeRaw`
-          INSERT INTO "Embedding" ("id", "organizationId", "chatbotId", "knowledgeSourceId", "chunkIndex", "content", "tokenCount", "vector", "createdAt")
-          VALUES (${cuid()}, ${organizationId}, ${chatbotId}, ${knowledgeSourceId}, ${chunk.chunkIndex}, ${chunk.content}, ${chunk.tokenCount}, ${vector}::vector, NOW())
-        `;
-      } catch (dbError) {
-        // If pgvector is not available, save without vector
-        console.warn('[DocumentProcessor] pgvector not available, saving without vector. Install pgvector extension.');
-        await tx.$executeRaw`
-          INSERT INTO "Embedding" ("id", "organizationId", "chatbotId", "knowledgeSourceId", "chunkIndex", "content", "tokenCount", "createdAt")
-          VALUES (${cuid()}, ${organizationId}, ${chatbotId}, ${knowledgeSourceId}, ${chunk.chunkIndex}, ${chunk.content}, ${chunk.tokenCount}, NOW())
-        `;
-      }
+      const embeddingMetadata = {
+        vector: vector,
+        dimensions: vector.length,
+      };
+
+      await tx.$executeRaw`
+        INSERT INTO "Embedding" ("id", "organizationId", "chatbotId", "knowledgeSourceId", "chunkIndex", "content", "tokenCount", "metadata", "createdAt")
+        VALUES (${cuid()}, ${organizationId}, ${chatbotId}, ${knowledgeSourceId}, ${chunk.chunkIndex}, ${chunk.content}, ${chunk.tokenCount}, ${JSON.stringify(embeddingMetadata)}::jsonb, NOW())
+      `;
     }
 
     // Update knowledge source

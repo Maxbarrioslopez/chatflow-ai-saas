@@ -38,7 +38,7 @@ export const config = {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   },
   database: {
-    url: process.env.DATABASE_URL || 'postgresql://localhost:5432/chatflow',
+    url: process.env.DATABASE_URL || 'postgresql://localhost:5432/chatmbl',
   },
   cors: {
     origin: process.env.CORS_ORIGIN || 'http://localhost:3000',

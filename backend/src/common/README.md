@@ -42,7 +42,7 @@ common/
 ```typescript
 import { authenticate, requireRole } from '../../common/middleware';
 import { validate } from '../../common/middleware/validate';
-import { createChatbotSchema } from '@chatflow/shared';
+import { createChatbotSchema } from '@chatmbl/shared';
 
 router.post('/', authenticate, validate(createChatbotSchema), controller.create);
 router.delete('/:id', authenticate, requireRole('owner', 'admin'), controller.delete);

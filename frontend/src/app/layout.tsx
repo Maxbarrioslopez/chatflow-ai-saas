@@ -6,7 +6,7 @@ import { Providers } from '@/providers';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'ChatFlow - AI Chatbot Platform',
+  title: 'ChatMBL - AI Chatbot Platform',
   description: 'Enterprise SaaS platform for intelligent AI chatbots. Multi-tenant, white-label, AI-first.',
   keywords: ['chatbot', 'AI', 'SaaS', 'conversational AI', 'customer support'],
 };

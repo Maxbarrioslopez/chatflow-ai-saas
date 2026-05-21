@@ -1,4 +1,4 @@
-# ChatFlow AI SaaS Platform
+# ChatMBL AI SaaS Platform
 
 Multi-tenant chatbot SaaS platform with modular architecture (frontend/backend/db/shared). Built for white-label deployment with AI-first design, knowledge retrieval (RAG), workflow automation, and premium UI/UX.
 
@@ -25,7 +25,7 @@ Multi-tenant chatbot SaaS platform with modular architecture (frontend/backend/d
 ## Architecture
 
 ```
-chatflow/                     # npm workspaces monorepo
+chatmbl/                     # npm workspaces monorepo
 ├── frontend/                 # Next.js 14 (App Router) + React 18 + Tailwind
 ├── backend/                  # Express + Socket.IO + BullMQ
 ├── db/                       # Prisma schema + migrations + seeds
@@ -133,7 +133,7 @@ graph LR
 ## Directory Structure
 
 ```
-chatflow/
+chatmbl/
 ├── frontend/
 │   ├── src/
 │   │   ├── app/               # Next.js App Router pages
@@ -203,7 +203,7 @@ chatflow/
 See `.env.example` for full list. Required variables for development:
 
 ```bash
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/chatflow"
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/chatmbl"
 JWT_SECRET="generate-a-random-secret"          # openssl rand -hex 64
 ENCRYPTION_KEY="generate-another-random-string"
 OPENAI_API_KEY="sk-..."                        # Required for AI features
@@ -221,7 +221,7 @@ OPENAI_API_KEY="sk-..."                        # Required for AI features
 ```bash
 # 1. Clone and install
 git clone <repo-url>
-cd chatflow
+cd chatmbl
 npm install
 
 # 2. Configure environment
@@ -327,7 +327,7 @@ curl http://localhost:4000/api/health
 ## Development Conventions
 
 - **Modularity**: Each feature is a self-contained module. No cross-module imports between frontend and backend.
-- **Shared Types**: Use `@chatflow/shared` for types/schemas shared between frontend and backend.
+- **Shared Types**: Use `@chatmbl/shared` for types/schemas shared between frontend and backend.
 - **Backend First**: All sensitive logic (API keys, business rules) lives in backend. Frontend contains zero secrets.
 - **No Monolith**: Frontend and backend are separate npm workspaces. No mixing.
 - **Database Isolation**: All DB access is scoped to the `db` workspace via Prisma.

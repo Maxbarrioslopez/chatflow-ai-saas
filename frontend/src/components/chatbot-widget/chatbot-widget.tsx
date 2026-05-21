@@ -230,7 +230,7 @@ export function ChatbotWidget({ token, apiUrl = 'http://localhost:4000/api' }: C
               </div>
               {config.appearance?.showBranding !== false && (
                 <p className="text-[10px] text-gray-400 text-center mt-2">
-                  Powered by ChatFlow
+                  Powered by ChatMBL
                 </p>
               )}
             </div>

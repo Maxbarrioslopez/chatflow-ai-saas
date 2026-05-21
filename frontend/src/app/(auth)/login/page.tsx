@@ -45,7 +45,7 @@ export default function LoginPage() {
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-purple-600">
               <Zap className="h-5 w-5 text-white" />
             </div>
-            <span className="text-2xl font-bold">ChatFlow</span>
+            <span className="text-2xl font-bold">ChatMBL</span>
           </Link>
           <h1 className="text-2xl font-bold">Welcome back</h1>
           <p className="text-muted-foreground mt-1">Sign in to your account</p>

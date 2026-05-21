@@ -275,6 +275,7 @@ model AIConfig {
   embeddingModel  String  @default("text-embedding-3-small")
   streamingEnabled Boolean @default(true)
   maxRetries      Int     @default(3)
+  knowledgeOnly   Boolean @default(false)
 
   chatbot         Chatbot @relation(fields: [chatbotId], references: [id], onDelete: Cascade)
 
@@ -382,7 +383,6 @@ model Embedding {
   chunkIndex        Int
   content           String
   tokenCount        Int?
-  vector            Unsupported("vector(1536)")
   metadata          Json?
   createdAt         DateTime @default(now())
 

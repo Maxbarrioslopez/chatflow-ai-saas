@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { PageHeader } from '@/components/shared/page-header';
 import { cn } from '@/lib/utils';
-import { PLANS } from '@chatflow/shared';
+import { PLANS } from '@chatmbl/shared';
 import { Check, Zap, ArrowRight, CreditCard } from 'lucide-react';
 import { motion } from 'framer-motion';
 

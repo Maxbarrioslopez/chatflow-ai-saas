@@ -16,7 +16,7 @@
     "plugins": [{ "name": "next" }],
     "paths": {
       "@/*": ["./src/*"],
-      "@chatflow/shared": ["../shared/src"]
+      "@chatmbl/shared": ["../shared/src"]
     },
     "baseUrl": "."
   },

@@ -1,6 +1,6 @@
 # Next.js App Router Pages
 
-All page routes for the ChatFlow frontend.
+All page routes for the ChatMBL frontend.
 
 ## Route Groups
 

@@ -1,10 +1,10 @@
-# ChatFlow Shared Package
+# ChatMBL Shared Package
 
 Types, Zod validation schemas, and constants shared between frontend and backend.
 
 ## Purpose
 
-The `shared` package prevents type duplication and ensures consistent validation between client and server. It is an npm workspace dependency of both `@chatflow/frontend` and `@chatflow/backend`.
+The `shared` package prevents type duplication and ensures consistent validation between client and server. It is an npm workspace dependency of both `@chatmbl/frontend` and `@chatmbl/backend`.
 
 ## Rules
 

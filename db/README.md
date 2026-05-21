@@ -1,4 +1,4 @@
-# ChatFlow Database
+# ChatMBL Database
 
 PostgreSQL 15+ with Prisma ORM. Contains the complete data schema for the multi-tenant chatbot platform.
 

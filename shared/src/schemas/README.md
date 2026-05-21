@@ -13,7 +13,7 @@ Validation schemas shared between frontend and backend for consistent input vali
 ## Usage
 
 ```typescript
-import { loginSchema, registerSchema } from '@chatflow/shared';
+import { loginSchema, registerSchema } from '@chatmbl/shared';
 
 // Backend middleware
 router.post('/register', validate(registerSchema), controller.register);

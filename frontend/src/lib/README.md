@@ -45,7 +45,7 @@ try {
 
 ### Auth Token
 
-- Token is read from Zustand `chatflow-auth` localStorage key
+- Token is read from Zustand `chatmbl-auth` localStorage key
 - Automatic redirect to `/login` on 401 responses
 - Content-Type is always `application/json`
 

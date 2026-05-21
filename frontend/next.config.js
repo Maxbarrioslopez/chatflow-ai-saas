@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ['@chatflow/shared'],
+  transpilePackages: ['@chatmbl/shared'],
   images: {
     domains: ['localhost', 'avatars.githubusercontent.com'],
   },

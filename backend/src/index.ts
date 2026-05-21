@@ -61,7 +61,7 @@ initWebSocket(httpServer);
 
 const port = config.port;
 httpServer.listen(port, () => {
-  console.log(`🚀 ChatFlow server running on http://localhost:${port}`);
+  console.log(`🚀 ChatMBL server running on http://localhost:${port}`);
   console.log(`🔌 WebSocket ready`);
   console.log(`🌍 Environment: ${config.nodeEnv}`);
 });

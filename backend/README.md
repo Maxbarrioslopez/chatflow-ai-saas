@@ -1,4 +1,4 @@
-# ChatFlow Backend
+# ChatMBL Backend
 
 Express server with Socket.IO, BullMQ queues, AI/RAG services, and multi-tenant middleware.
 

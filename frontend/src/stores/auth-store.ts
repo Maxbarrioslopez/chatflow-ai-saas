@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { AuthUser, AuthTokens } from '@chatflow/shared';
+import type { AuthUser, AuthTokens } from '@chatmbl/shared';
 
 interface AuthState {
   user: AuthUser | null;
@@ -25,7 +25,7 @@ export const useAuthStore = create<AuthState>()(
         })),
     }),
     {
-      name: 'chatflow-auth',
+      name: 'chatmbl-auth',
       partialize: (state) => ({
         user: state.user,
         tokens: state.tokens,

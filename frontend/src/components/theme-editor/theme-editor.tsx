@@ -247,7 +247,7 @@ export function ThemeEditor() {
               <Switch checked={config.darkMode} onCheckedChange={(v) => update('darkMode', v)} />
             </div>
             <div className="flex items-center justify-between">
-              <div><Label>Show Branding</Label><p className="text-xs text-muted-foreground">Powered by ChatFlow</p></div>
+              <div><Label>Show Branding</Label><p className="text-xs text-muted-foreground">Powered by ChatMBL</p></div>
               <Switch checked={config.showBranding} onCheckedChange={(v) => update('showBranding', v)} />
             </div>
           </TabsContent>

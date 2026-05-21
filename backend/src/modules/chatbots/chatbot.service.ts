@@ -1,7 +1,7 @@
 import { prisma } from '../../services/prisma';
 import { AppError } from '../../common/errors';
-import { BUSINESS_PRESETS } from '@chatflow/shared';
-import type { CreateChatbotInput } from '@chatflow/shared';
+import { BUSINESS_PRESETS } from '@chatmbl/shared';
+import type { CreateChatbotInput } from '@chatmbl/shared';
 import { v4 as uuid } from 'uuid';
 
 export class ChatbotService {

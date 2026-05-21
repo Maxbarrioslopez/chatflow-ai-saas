@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { ChatbotController } from './chatbot.controller';
 import { authenticate } from '../../common/middleware/auth-guard';
 import { validate } from '../../common/middleware/validate';
-import { createChatbotSchema, updateAppearanceSchema, updateBehaviorSchema } from '@chatflow/shared';
+import { createChatbotSchema, updateAppearanceSchema, updateBehaviorSchema } from '@chatmbl/shared';
 
 export const chatbotRouter = Router();
 const controller = new ChatbotController();

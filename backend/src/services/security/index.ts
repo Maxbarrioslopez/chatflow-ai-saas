@@ -9,7 +9,7 @@ function getEncryptionKey(): Buffer {
   if (rawKey === 'dev-encryption-key-change-in-production' && config.isProduction) {
     throw new Error('ENCRYPTION_KEY must be set in production');
   }
-  return scryptSync(rawKey, 'chatflow-salt', KEY_LENGTH);
+  return scryptSync(rawKey, 'chatmbl-salt', KEY_LENGTH);
 }
 
 export function encrypt(text: string): string {
