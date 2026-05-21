@@ -1,0 +1,27 @@
+{
+  "name": "chatflow-saas",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ChatFlow SaaS - Multi-tenant chatbot platform",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "dev:backend": "npm run dev --workspace=backend",
+    "build": "npm run build --workspace=shared && npm run build --workspace=backend && npm run build --workspace=frontend",
+    "db:migrate": "npm run db:migrate --workspace=db",
+    "db:seed": "npm run db:seed --workspace=db",
+    "db:studio": "npm run db:studio --workspace=db",
+    "lint": "npm run lint --workspace=frontend && npm run lint --workspace=backend",
+    "typecheck": "npm run typecheck --workspace=frontend && npm run typecheck --workspace=backend"
+  },
+  "workspaces": [
+    "shared",
+    "backend",
+    "frontend",
+    "db"
+  ],
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.4.5"
+  }
+}

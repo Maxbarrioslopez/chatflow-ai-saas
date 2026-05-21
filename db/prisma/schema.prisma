@@ -1,0 +1,554 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  owner
+  admin
+  member
+  viewer
+}
+
+enum ConversationStatus {
+  active
+  waiting
+  resolved
+  closed
+  spam
+}
+
+enum LeadStatus {
+  new
+  qualified
+  contacted
+  converted
+  lost
+  spam
+}
+
+enum LeadSource {
+  chatbot
+  widget
+  api
+  manual
+  import
+  integration
+}
+
+enum KnowledgeSourceType {
+  document
+  website
+  text
+  faq
+  qapairs
+}
+
+enum KnowledgeSourceStatus {
+  pending
+  processing
+  ready
+  failed
+  needs_ocr
+}
+
+enum MessageRole {
+  user
+  assistant
+  system
+}
+
+enum SubscriptionStatus {
+  active
+  canceled
+  past_due
+  trialing
+  incomplete
+}
+
+enum HandoffChannel {
+  email
+  whatsapp
+  slack
+  discord
+  telegram
+  ticket
+  live
+}
+
+enum HandoffStatus {
+  pending
+  accepted
+  resolved
+  rejected
+}
+
+model Organization {
+  id          String          @id @default(cuid())
+  name        String
+  slug        String          @unique
+  logoUrl     String?
+  website     String?
+  planId      String          @default("free")
+  settings    Json            @default("{}")
+  branding    Json            @default("{}")
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  users          User[]
+  chatbots       Chatbot[]
+  subscription   Subscription?
+  apiKeys        ApiKey[]
+  integrations   Integration[]
+  workspaces     Workspace[]
+  tokenUsage     TokenUsage[]
+  auditLogs      AuditLog[]
+
+  @@map("organizations")
+}
+
+model Workspace {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  description    String?
+  settings       Json     @default("{}")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("workspaces")
+}
+
+model User {
+  id             String       @id @default(cuid())
+  email          String       @unique
+  name           String
+  passwordHash   String
+  avatarUrl      String?
+  role           UserRole     @default(member)
+  isActive       Boolean      @default(true)
+  lastLoginAt    DateTime?
+  organizationId String
+  settings       Json         @default("{}")
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("users")
+}
+
+model Chatbot {
+  id              String          @id @default(cuid())
+  name            String
+  description     String?
+  businessPreset  String          @default("custom")
+  organizationId  String
+  workspaceId     String?
+  isActive        Boolean         @default(true)
+  isVisible       Boolean         @default(true)
+  widgetToken     String          @unique @default(cuid())
+  settings        Json            @default("{}")
+  metadata        Json            @default("{}")
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  organization    Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  appearance      ChatbotAppearance?
+  behavior        ChatbotBehavior?
+  aiConfig        AIConfig?
+  whitelabel      WhitelabelConfig?
+  knowledge       KnowledgeSource[]
+  conversations   Conversation[]
+  leads           Lead[]
+  integrations    Integration[]
+  workflows       Workflow[]
+  prompts         Prompt[]
+
+  @@map("chatbots")
+}
+
+model ChatbotAppearance {
+  id              String  @id @default(cuid())
+  chatbotId       String  @unique
+  primaryColor    String  @default("#6366f1")
+  secondaryColor  String  @default("#8b5cf6")
+  fontFamily      String  @default("Inter")
+  position        String  @default("right")
+  borderRadius    String  @default("md")
+  showBranding    Boolean @default(true)
+  avatarUrl       String?
+  avatarStyle     String  @default("default")
+  welcomeMessage  String  @default("Hello! How can I help you today?")
+  inputPlaceholder String @default("Type your message...")
+  theme           String  @default("light")
+  headerStyle     String  @default("default")
+  bubbleStyle     String  @default("rounded")
+  animation       String  @default("smooth")
+  customCss       String?
+  headerGradient  String?
+  glassEffect     Boolean @default(true)
+  darkMode        Boolean @default(false)
+
+  chatbot         Chatbot @relation(fields: [chatbotId], references: [id], onDelete: Cascade)
+
+  @@map("chatbot_appearances")
+}
+
+model ChatbotBehavior {
+  id                  String   @id @default(cuid())
+  chatbotId           String   @unique
+  initialMessage      String   @default("Hello! How can I help you today?")
+  suggestedMessages   Json     @default("[]")
+  maxMessagesPerSession Int    @default(100)
+  inactivityTimeout   Int      @default(300)
+  showTypingIndicator Boolean  @default(true)
+  enableFeedback      Boolean  @default(true)
+  enableFileUpload    Boolean  @default(false)
+  enableVoiceInput    Boolean  @default(false)
+  enableEmojiPicker   Boolean  @default(true)
+  collectLeadInfo     Boolean  @default(true)
+  leadFormFields      Json     @default("[{\"key\":\"name\",\"label\":\"Name\",\"type\":\"text\",\"required\":true},{\"key\":\"email\",\"label\":\"Email\",\"type\":\"email\",\"required\":true}]")
+  fallbackMessage     String   @default("I'm sorry, I didn't understand that.")
+  triggerRules        Json     @default("[]")
+  operatingHours      Json?
+  customInstructions  String?
+  autoSummary         Boolean  @default(true)
+  sentimentAnalysis   Boolean  @default(true)
+  leadScoring         Boolean  @default(true)
+
+  chatbot             Chatbot  @relation(fields: [chatbotId], references: [id], onDelete: Cascade)
+
+  @@map("chatbot_behaviors")
+}
+
+model AIConfig {
+  id              String  @id @default(cuid())
+  chatbotId       String  @unique
+  provider        String  @default("openai")
+  model           String  @default("gpt-4o-mini")
+  temperature     Float   @default(0.7)
+  maxTokens       Int     @default(2048)
+  topP            Float   @default(1.0)
+  frequencyPenalty Float  @default(0.0)
+  presencePenalty Float   @default(0.0)
+  systemPrompt    String  @default("You are a helpful assistant.")
+  customEndpoint  String?
+  embeddingModel  String  @default("text-embedding-3-small")
+  streamingEnabled Boolean @default(true)
+  maxRetries      Int     @default(3)
+
+  chatbot         Chatbot @relation(fields: [chatbotId], references: [id], onDelete: Cascade)
+
+  @@map("ai_configs")
+}
+
+model WhitelabelConfig {
+  id            String  @id @default(cuid())
+  chatbotId     String  @unique
+  enabled       Boolean @default(false)
+  customDomain  String?
+  removeBranding Boolean @default(false)
+  customCss     String?
+  faviconUrl    String?
+  companyName   String?
+  companyUrl    String?
+  themeOverrides Json   @default("{}")
+
+  chatbot       Chatbot @relation(fields: [chatbotId], references: [id], onDelete: Cascade)
+
+  @@map("whitelabel_configs")
+}
+
+model Prompt {
+  id        String   @id @default(cuid())
+  chatbotId String
+  name      String
+  content   String
+  version   Int      @default(1)
+  variables Json     @default("[]")
+  isActive  Boolean  @default(true)
+  metadata  Json     @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  chatbot   Chatbot  @relation(fields: [chatbotId], references: [id], onDelete: Cascade)
+  versions  PromptVersion[]
+
+  @@map("prompts")
+}
+
+model PromptVersion {
+  id        String   @id @default(cuid())
+  promptId  String
+  version   Int
+  content   String
+  variables Json     @default("[]")
+  createdAt DateTime @default(now())
+
+  prompt    Prompt   @relation(fields: [promptId], references: [id], onDelete: Cascade)
+
+  @@map("prompt_versions")
+}
+
+model Workflow {
+  id        String   @id @default(cuid())
+  chatbotId String
+  name      String
+  description String?
+  definition Json     @default("{\"nodes\":[],\"edges\":[]}")
+  isActive  Boolean  @default(true)
+  trigger   String   @default("message_received")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  chatbot   Chatbot  @relation(fields: [chatbotId], references: [id], onDelete: Cascade)
+
+  @@map("workflows")
+}
+
+model KnowledgeSource {
+  id             String               @id @default(cuid())
+  organizationId String
+  chatbotId      String
+  type           KnowledgeSourceType
+  name           String
+  content        String?
+  url            String?
+  filePath       String?
+  fileSize       Int?
+  mimeType       String?
+  originalName   String?
+  status         KnowledgeSourceStatus @default(pending)
+  errorMessage   String?
+  chunkCount     Int?
+  metadata       Json?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  chatbot        Chatbot              @relation(fields: [chatbotId], references: [id], onDelete: Cascade)
+  embeddings     Embedding[]
+
+  @@index([organizationId])
+  @@index([chatbotId])
+  @@index([organizationId, chatbotId])
+  @@index([status])
+  @@map("knowledge_sources")
+}
+
+model Embedding {
+  id                String   @id @default(cuid())
+  organizationId    String
+  chatbotId         String
+  knowledgeSourceId String
+  chunkIndex        Int
+  content           String
+  tokenCount        Int?
+  vector            Unsupported("vector(1536)")
+  metadata          Json?
+  createdAt         DateTime @default(now())
+
+  knowledgeSource   KnowledgeSource @relation(fields: [knowledgeSourceId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([chatbotId])
+  @@index([knowledgeSourceId])
+  @@unique([knowledgeSourceId, chunkIndex])
+  @@map("embeddings")
+}
+
+model Conversation {
+  id              String             @id @default(cuid())
+  chatbotId       String
+  visitorId       String
+  visitorName     String?
+  visitorEmail    String?
+  status          ConversationStatus @default(active)
+  leadId          String?
+  rating          Int?
+  feedback        String?
+  tags            Json               @default("[]")
+  metadata        Json               @default("{}")
+  userAgent       String?
+  ipAddress       String?
+  pageUrl         String?
+  customFields    Json               @default("{}")
+  summary         String?
+  intent          String?
+  sentiment       String?
+  messageCount    Int                @default(0)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  closedAt        DateTime?
+
+  chatbot         Chatbot            @relation(fields: [chatbotId], references: [id], onDelete: Cascade)
+  messages        Message[]
+  lead            Lead?
+  handoffs        Handoff[]
+
+  @@index([chatbotId, status])
+  @@index([visitorId])
+  @@index([createdAt])
+  @@map("conversations")
+}
+
+model Message {
+  id              String      @id @default(cuid())
+  conversationId  String
+  role            MessageRole
+  content         String
+  intent          String?
+  sentiment       String?
+  confidence      Float?
+  tokens          Int?
+  processingTime  Int?
+  sourceReferences Json?
+  metadata        Json        @default("{}")
+  createdAt       DateTime    @default(now())
+
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@map("messages")
+}
+
+model Lead {
+  id              String     @id @default(cuid())
+  chatbotId       String
+  conversationId  String?    @unique
+  name            String?
+  email           String?
+  phone           String?
+  company         String?
+  source          LeadSource @default(chatbot)
+  status          LeadStatus @default(new)
+  score           Int        @default(0)
+  tags            Json       @default("[]")
+  customFields    Json       @default("{}")
+  notes           String?
+  metadata        Json       @default("{}")
+  firstMessageAt  DateTime?
+  lastMessageAt   DateTime?
+  convertedAt     DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  chatbot         Chatbot    @relation(fields: [chatbotId], references: [id], onDelete: Cascade)
+  conversation    Conversation? @relation(fields: [conversationId], references: [id])
+
+  @@index([chatbotId, status])
+  @@index([email])
+  @@index([createdAt])
+  @@map("leads")
+}
+
+model Handoff {
+  id             String         @id @default(cuid())
+  conversationId String
+  channel        HandoffChannel
+  destination    String
+  message        String
+  status         HandoffStatus  @default(pending)
+  assignedTo     String?
+  resolvedAt     DateTime?
+  metadata       Json           @default("{}")
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  conversation   Conversation   @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@map("handoffs")
+}
+
+model Subscription {
+  id                String             @id @default(cuid())
+  organizationId    String             @unique
+  planId            String             @default("free")
+  status            SubscriptionStatus @default(trialing)
+  currentPeriodStart DateTime          @default(now())
+  currentPeriodEnd  DateTime
+  trialEnd          DateTime?
+  cancelAtPeriodEnd Boolean            @default(false)
+  stripeCustomerId  String?
+  stripeSubscriptionId String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  organization      Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+model Integration {
+  id              String   @id @default(cuid())
+  chatbotId       String?
+  organizationId  String
+  provider        String
+  name            String
+  enabled         Boolean  @default(false)
+  config          Json     @default("{}")
+  credentials     Json?
+  lastSyncAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  chatbot         Chatbot? @relation(fields: [chatbotId], references: [id], onDelete: SetNull)
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("integrations")
+}
+
+model ApiKey {
+  id              String   @id @default(cuid())
+  organizationId  String
+  name            String
+  key             String   @unique
+  lastUsedAt      DateTime?
+  expiresAt       DateTime?
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("api_keys")
+}
+
+model TokenUsage {
+  id              String   @id @default(cuid())
+  organizationId  String
+  chatbotId       String?
+  promptTokens    Int      @default(0)
+  completionTokens Int     @default(0)
+  totalTokens     Int      @default(0)
+  model           String?
+  cost            Float    @default(0)
+  createdAt       DateTime @default(now())
+
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, createdAt])
+  @@map("token_usage")
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  organizationId String
+  userId      String?
+  action      String
+  resource    String
+  resourceId  String?
+  metadata    Json?
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, createdAt])
+  @@map("audit_logs")
+}

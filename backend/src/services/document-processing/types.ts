@@ -1,0 +1,42 @@
+export type ParsedDocument = {
+  text: string;
+  metadata: {
+    title?: string;
+    pages?: number;
+    rows?: number;
+    lines?: number;
+    words?: number;
+    mimeType?: string;
+    originalName?: string;
+    sizeBytes?: number;
+    parser: string;
+    warnings?: string[];
+    warning?: string;
+  };
+};
+
+export interface DocumentParser {
+  supports(input: { mimeType?: string; filename?: string }): boolean;
+  parse(buffer: Buffer, input: { mimeType?: string; filename?: string }): Promise<ParsedDocument>;
+}
+
+export type DocumentProcessingJob = {
+  knowledgeSourceId: string;
+  organizationId: string;
+  chatbotId: string;
+  filePath?: string;
+  bufferBase64?: string;
+  mimeType: string;
+  filename: string;
+};
+
+export const ALLOWED_MIME_TYPES = [
+  'application/pdf',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'text/plain',
+  'text/markdown',
+  'text/csv',
+];
+
+export const ALLOWED_EXTENSIONS = ['.pdf', '.docx', '.txt', '.md', '.csv'];
+export const MAX_FILE_SIZE = 10 * 1024 * 1024;
