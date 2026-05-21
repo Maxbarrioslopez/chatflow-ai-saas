@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
+import { LanguageSwitcher } from '@/components/shared/language-switcher';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,6 +59,8 @@ export function Header({ onMenuToggle }: HeaderProps) {
             3
           </span>
         </Button>
+
+        <LanguageSwitcher />
 
         <Button
           variant="ghost"

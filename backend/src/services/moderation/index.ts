@@ -1,3 +1,14 @@
+/**
+ * Servicio de Moderación - Moderation Service
+ * 
+ * Evalúa mensajes contra reglas configurables: palabras prohibidas,
+ * patrones regex, datos sensibles, inyección de prompt.
+ * Soporta acciones: bloquear, advertir, derivar, enmascarar, solo registro.
+ * 
+ * Evaluates messages against configurable rules: forbidden words,
+ * regex patterns, sensitive data, prompt injection.
+ * Supports actions: block, warn, handoff, mask, log-only.
+ */
 import { prisma } from '../prisma';
 import type { ModerationRuleType, ModerationAction, ModerationSeverity, ModerationMatchMode } from '@prisma/client';
 import { matchText, detectSensitiveData, detectPromptInjection } from './detector';

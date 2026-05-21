@@ -1,3 +1,12 @@
+/**
+ * Servicio de IA - AI Service
+ * 
+ * Orquesta las llamadas a modelos de lenguaje (LLM) usando el cliente centralizado.
+ * Soporta chat simple y streaming. Proveedores: OpenAI, OpenRouter, Anthropic.
+ * 
+ * Orchestrates LLM calls using the centralized AI client.
+ * Supports simple chat and streaming. Providers: OpenAI, OpenRouter, Anthropic.
+ */
 import { prisma } from '../prisma';
 import { AppError } from '../../common/errors';
 import { addJob, QueueName } from '../../queue';

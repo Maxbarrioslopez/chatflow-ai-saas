@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight, Bot, BarChart3, MessageSquare, Users, Zap, Sparkles, Shield, Globe, Check, Star, ChevronRight, BookOpen, Cpu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { LanguageSwitcher } from '@/components/shared/language-switcher';
 import { PLANS } from '@chatmbl/shared';
 
 const features = [
@@ -38,7 +39,8 @@ export default function LandingPage() {
             <Link href="#pricing">Pricing</Link>
             <Link href="#testimonials">Testimonials</Link>
           </nav>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher />
             <Link href="/login"><Button variant="ghost">Sign in</Button></Link>
             <Link href="/register"><Button variant="gradient">Get Started</Button></Link>
           </div>

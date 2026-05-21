@@ -1,3 +1,12 @@
+/**
+ * Servicio RAG - Retrieval-Augmented Generation
+ * 
+ * Busca documentos relevantes en la base de conocimiento, genera embeddings
+ * y aumenta el prompt del sistema con contexto recuperado.
+ * 
+ * Retrieves relevant documents from the knowledge base, generates embeddings,
+ * and augments the system prompt with retrieved context.
+ */
 import { embeddingRepository } from '../../repositories/embedding.repository';
 import { knowledgeSourceRepository } from '../../repositories/knowledge-source.repository';
 import { createEmbedding } from '../ai/embeddings.service';
