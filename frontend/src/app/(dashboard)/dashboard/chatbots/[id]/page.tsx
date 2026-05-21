@@ -15,20 +15,18 @@ import { ChatbotPreview } from '@/components/chatbot-preview/chatbot-preview';
 import { AppearanceEditor } from '@/components/config-editor/appearance-editor';
 import { BehaviorEditor } from '@/components/config-editor/behavior-editor';
 import { AIConfigEditor } from '@/components/config-editor/ai-config-editor';
+import { ModerationPanel } from '@/components/moderation/moderation-panel';
 import { api } from '@/lib/api';
 import {
   ArrowLeft,
-  Bot,
+  Settings,
   Palette,
   Brain,
-  Settings,
   Code,
   Eye,
-  Copy,
-  Check,
-  RefreshCw,
-  Power,
-  BarChart3,
+  Bot,
+  Loader2,
+  Shield,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -145,6 +143,7 @@ export default function ChatbotDetailPage() {
           <TabsTrigger value="ai"><Code className="mr-2 h-4 w-4" /> AI Config</TabsTrigger>
           <TabsTrigger value="preview"><Eye className="mr-2 h-4 w-4" /> Preview</TabsTrigger>
           <TabsTrigger value="embed"><Code className="mr-2 h-4 w-4" /> Embed</TabsTrigger>
+          <TabsTrigger value="moderation"><Shield className="mr-2 h-4 w-4" /> Moderation</TabsTrigger>
         </TabsList>
 
         <TabsContent value="config">
@@ -247,6 +246,18 @@ export default function ChatbotDetailPage() {
                   Regenerate Token
                 </Button>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="moderation">
+          <Card>
+            <CardHeader>
+              <CardTitle>Moderation & Safety</CardTitle>
+              <CardDescription>Configure content filtering, forbidden words, and safety rules for this chatbot</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ModerationPanel chatbotId={chatbot.id} />
             </CardContent>
           </Card>
         </TabsContent>

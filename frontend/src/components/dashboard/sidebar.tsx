@@ -23,6 +23,10 @@ import {
   Puzzle,
 } from 'lucide-react';
 
+interface SidebarProps {
+  onNavigate?: () => void;
+}
+
 const navGroups = [
   {
     label: 'Main',
@@ -68,14 +72,14 @@ const navGroups = [
   },
 ];
 
-export function Sidebar() {
+export function Sidebar({ onNavigate }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
 
   return (
     <aside
       className={cn(
-        'fixed left-0 top-0 z-40 flex h-screen flex-col bg-sidebar border-r border-sidebar-border transition-all duration-300',
+        'flex h-screen flex-col bg-sidebar border-r border-sidebar-border transition-all duration-300',
         collapsed ? 'w-[72px]' : 'w-[260px]',
       )}
     >
@@ -84,7 +88,7 @@ export function Sidebar() {
         collapsed ? 'justify-center' : 'justify-between',
       )}>
         {!collapsed && (
-          <Link href="/dashboard" className="flex items-center gap-2">
+          <Link href="/dashboard" className="flex items-center gap-2" onClick={onNavigate}>
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-purple-600">
               <Zap className="h-4 w-4 text-white" />
             </div>
@@ -92,7 +96,7 @@ export function Sidebar() {
           </Link>
         )}
         {collapsed && (
-          <Link href="/dashboard" className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-purple-600">
+          <Link href="/dashboard" className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-purple-600" onClick={onNavigate}>
             <Zap className="h-4 w-4 text-white" />
           </Link>
         )}
@@ -108,11 +112,12 @@ export function Sidebar() {
             )}
             <div className="space-y-0.5">
               {group.items.map((item) => {
-                const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+                const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href + '/'));
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
+                    onClick={onNavigate}
                     className={cn(
                       'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200',
                       collapsed && 'justify-center px-2',
@@ -147,7 +152,7 @@ export function Sidebar() {
 
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="flex h-10 items-center justify-center border-t border-sidebar-border text-sidebar-muted hover:text-sidebar-foreground transition-colors"
+        className="hidden lg:flex h-10 items-center justify-center border-t border-sidebar-border text-sidebar-muted hover:text-sidebar-foreground transition-colors"
       >
         {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
       </button>

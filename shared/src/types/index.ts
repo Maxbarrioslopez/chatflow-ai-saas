@@ -4,3 +4,4 @@ export * from './chat';
 export * from './lead';
 export * from './analytics';
 export * from './billing';
+export * from './moderation';

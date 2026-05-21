@@ -20,6 +20,7 @@ import { knowledgeRouter } from './modules/knowledge/knowledge.routes';
 import { workflowRouter } from './modules/workflows/workflow.routes';
 import { webhookRouter } from './modules/webhooks/webhook.routes';
 import { workspaceRouter } from './modules/workspaces/workspace.routes';
+import { moderationRouter } from './modules/moderation/moderation.routes';
 import { healthRouter } from './routes/health.routes';
 import { initDocumentProcessingWorker } from './queue/workers/document-processing.worker';
 
@@ -49,6 +50,7 @@ app.use('/api/leads', leadRouter);
 app.use('/api/analytics', analyticsRouter);
 app.use('/api/documents', documentRouter);
 app.use('/api/knowledge', knowledgeRouter);
+app.use('/api/moderation', moderationRouter);
 app.use('/api/workflows', workflowRouter);
 app.use('/api/webhooks', webhookRouter);
 app.use('/api/workspaces', workspaceRouter);

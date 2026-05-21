@@ -1,6 +1,7 @@
 import { prisma } from '../../services/prisma';
 import { AppError } from '../../common/errors';
 import { ragService } from '../../services/rag';
+import { moderationService } from '../../services/moderation';
 import { v4 as uuid } from 'uuid';
 
 export class ChatService {
@@ -41,7 +42,18 @@ export class ChatService {
       },
     });
 
-    const aiResponse = await this.callAI(chatbot, message, orgId);
+    const moderationResult = await moderationService.checkMessage(orgId, chatbotId, message, conversation.id);
+
+    if (moderationResult.blocked) {
+      const blockedMsg = 'Your message contains content not allowed by this assistant. Please rephrase.';
+      await prisma.message.create({
+        data: { conversationId: conversation.id, role: 'assistant', content: blockedMsg },
+      });
+      return { message: { id: 'blocked', role: 'assistant', content: blockedMsg }, conversationId: conversation.id };
+    }
+
+    const effectiveMessage = moderationResult.sanitizedText || message;
+    const aiResponse = await this.callAI(chatbot, effectiveMessage, orgId);
 
     const assistantMessage = await prisma.message.create({
       data: {

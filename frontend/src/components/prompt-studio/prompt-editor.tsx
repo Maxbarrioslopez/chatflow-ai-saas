@@ -95,11 +95,12 @@ export function PromptEditor({
     const filled = replaceVariables(content, variables);
     const fullPrompt = `${filled}\n\nUser: ${testInput || 'Hello!'}`;
 
-    setTimeout(() => {
-      setTestOutput(`🤖 AI Response Simulation\n\nPrompt used:\n${fullPrompt}\n\n[This is a test preview. Connect AI provider to get real responses.]`);
-      setIsTesting(false);
+    try {
+      setTestOutput(`🧪 Prompt Test\n\nResolved prompt:\n${fullPrompt}\n\n[Preview mode. Connect AI backend to get real completions.]`);
       setActiveTab('preview');
-    }, 800);
+    } finally {
+      setIsTesting(false);
+    }
   }, [content, variables, testInput, replaceVariables]);
 
   const handleSave = useCallback(() => {

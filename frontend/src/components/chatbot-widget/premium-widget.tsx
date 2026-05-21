@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, Send, X, MessageSquare, Loader2, Sparkles, ChevronDown, Globe, Maximize2, Minimize2 } from 'lucide-react';
+import { Bot, Send, X, MessageSquare, Loader2, Sparkles, ChevronDown, Globe, Maximize2, Minimize2, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type WidgetMode = 'floating' | 'inline' | 'fullscreen' | 'standalone';
@@ -79,6 +79,7 @@ export function PremiumWidget({
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -102,16 +103,47 @@ export function PremiumWidget({
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
     setIsLoading(true);
+    setError(null);
 
-    setTimeout(() => {
+    try {
+      const response = await fetch(`${apiUrl}/chat/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chatbotId: config.id,
+          message: input,
+          visitorId: localStorage.getItem('widget_visitor') || undefined,
+          conversationId: localStorage.getItem('widget_conversation') || undefined,
+        }),
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error?.message || `Request failed (${response.status})`);
+      }
+
+      const data = await response.json();
+
+      if (data.conversationId) {
+        localStorage.setItem('widget_conversation', data.conversationId);
+      }
+
       setMessages((prev) => [...prev, {
-        id: `msg_${Date.now()}_ai`,
+        id: data.message?.id || `msg_${Date.now()}_ai`,
         role: 'assistant',
-        content: `Thanks for your message! I'm a premium AI assistant. In production, this would connect to your AI backend.\n\n> "${userMsg.content}"`,
+        content: data.message?.content || 'No response generated.',
       }]);
+    } catch (err) {
+      setError((err as Error).message);
+      setMessages((prev) => [...prev, {
+        id: `msg_${Date.now()}_error`,
+        role: 'assistant',
+        content: "I'm sorry, I'm having trouble connecting. Please try again later.",
+      }]);
+    } finally {
       setIsLoading(false);
-    }, 1200);
-  }, [input, isLoading]);
+    }
+  }, [input, isLoading, config.id, apiUrl]);
 
   const widgetContent = (
     <motion.div
