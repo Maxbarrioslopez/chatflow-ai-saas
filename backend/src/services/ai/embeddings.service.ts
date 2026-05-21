@@ -1,11 +1,13 @@
+import { config } from '../../config';
+
 const EMBEDDING_MODEL = process.env.EMBEDDING_MODEL || 'text-embedding-3-small';
 const MAX_RETRIES = 3;
 const TIMEOUT_MS = 30000;
 
 export async function createEmbedding(text: string): Promise<number[]> {
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = config.ai.openaiKey || config.ai.openrouterKey;
   if (!apiKey) {
-    throw new Error('OPENAI_API_KEY is not configured');
+    throw new Error('No AI API key configured for embeddings. Set OPENAI_API_KEY or OPENROUTER_API_KEY.');
   }
 
   const cleaned = text.replace(/\0/g, '').trim();

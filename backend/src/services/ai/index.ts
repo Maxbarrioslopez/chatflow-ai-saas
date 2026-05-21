@@ -1,6 +1,7 @@
 import { prisma } from '../prisma';
 import { AppError } from '../../common/errors';
 import { addJob, QueueName } from '../../queue';
+import { callChatCompletion, callChatCompletionStream } from './chat-completions';
 
 export interface AIChatOptions {
   chatbotId: string;
@@ -40,51 +41,22 @@ export class AIService {
     ];
 
     try {
-      const response = await fetch(
-        `https://api.openai.com/v1/chat/completions`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-          },
-          body: JSON.stringify({
-            model: aiConfig.model || 'gpt-4o-mini',
-            messages: apiMessages,
-            temperature: aiConfig.temperature || 0.7,
-            max_tokens: aiConfig.maxTokens || 2048,
-            top_p: aiConfig.topP || 1,
-            frequency_penalty: aiConfig.frequencyPenalty || 0,
-            presence_penalty: aiConfig.presencePenalty || 0,
-          }),
-        },
-      );
-
-      if (!response.ok) {
-        const err = await response.text();
-        console.error('AI API error:', err);
-        throw new AppError(502, 'AI service error');
-      }
-
-      const data = await response.json() as any;
-      const result: AICompletionResult = {
-        content: data.choices[0]?.message?.content || '',
-        usage: data.usage
-          ? {
-              promptTokens: data.usage.prompt_tokens,
-              completionTokens: data.usage.completion_tokens,
-              totalTokens: data.usage.total_tokens,
-            }
-          : undefined,
-        model: data.model || aiConfig.model,
-      };
+      const result = await callChatCompletion(apiMessages, {
+        model: aiConfig.model || undefined,
+        temperature: aiConfig.temperature || 0.7,
+        maxTokens: aiConfig.maxTokens || 2048,
+      });
 
       await this.trackUsage(chatbot.organizationId, result.usage);
 
-      return result;
+      return {
+        content: result.content,
+        usage: result.usage,
+        model: result.model,
+      };
     } catch (error) {
       if (error instanceof AppError) throw error;
-      console.error('AI chat error:', error);
+      console.error('AI chat error:', error instanceof Error ? error.message : '');
       throw new AppError(502, 'Failed to get AI response');
     }
   }
@@ -106,56 +78,13 @@ export class AIService {
     ];
 
     try {
-      const response = await fetch(
-        `https://api.openai.com/v1/chat/completions`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-          },
-          body: JSON.stringify({
-            model: aiConfig.model || 'gpt-4o-mini',
-            messages: apiMessages,
-            temperature: aiConfig.temperature || 0.7,
-            max_tokens: aiConfig.maxTokens || 2048,
-            stream: true,
-          }),
-        },
-      );
+      const result = await callChatCompletionStream(apiMessages, onChunk, {
+        model: aiConfig.model || undefined,
+        temperature: aiConfig.temperature || 0.7,
+        maxTokens: aiConfig.maxTokens || 2048,
+      });
 
-      if (!response.ok) throw new AppError(502, 'AI streaming failed');
-
-      const reader = response.body?.getReader();
-      if (!reader) throw new AppError(502, 'No response body');
-
-      const decoder = new TextDecoder();
-      let fullContent = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n').filter((l) => l.startsWith('data: '));
-
-        for (const line of lines) {
-          const data = line.slice(6);
-          if (data === '[DONE]') continue;
-          try {
-            const parsed = JSON.parse(data);
-            const content = parsed.choices[0]?.delta?.content || '';
-            if (content) {
-              fullContent += content;
-              onChunk(content);
-            }
-          } catch {
-            // skip parse errors
-          }
-        }
-      }
-
-      return { content: fullContent, model: aiConfig.model };
+      return { content: result.content, model: result.model };
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw new AppError(502, 'AI streaming error');

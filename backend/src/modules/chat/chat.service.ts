@@ -2,6 +2,7 @@ import { prisma } from '../../services/prisma';
 import { AppError } from '../../common/errors';
 import { ragService } from '../../services/rag';
 import { moderationService } from '../../services/moderation';
+import { callChatCompletion } from '../../services/ai/chat-completions';
 import { v4 as uuid } from 'uuid';
 
 export class ChatService {
@@ -156,49 +157,29 @@ export class ChatService {
     ];
 
     try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: aiConfig.model || 'gpt-4o-mini',
-          messages,
-          temperature: aiConfig.temperature || 0.7,
-          max_tokens: aiConfig.maxTokens || 2048,
-        }),
+      const result = await callChatCompletion(messages, {
+        model: aiConfig.model || undefined,
+        temperature: aiConfig.temperature || 0.7,
+        maxTokens: aiConfig.maxTokens || 2048,
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('OpenAI API error:', errorText);
-        return chatbot.behavior?.fallbackMessage || "I'm sorry, I'm having trouble connecting. Please try again.";
+      if (result.usage) {
+        await prisma.tokenUsage.create({
+          data: {
+            organizationId,
+            chatbotId: chatbot.id,
+            promptTokens: result.usage.promptTokens,
+            completionTokens: result.usage.completionTokens,
+            totalTokens: result.usage.totalTokens,
+            model: result.model || aiConfig.model || 'unknown',
+            cost: (result.usage.totalTokens / 1000000) * 3,
+          },
+        });
       }
 
-      const data = (await response.json()) as any;
-
-      const tokenUsage = {
-        promptTokens: data.usage?.prompt_tokens || 0,
-        completionTokens: data.usage?.completion_tokens || 0,
-        totalTokens: data.usage?.total_tokens || 0,
-      };
-
-      await prisma.tokenUsage.create({
-        data: {
-          organizationId,
-          chatbotId: chatbot.id,
-          promptTokens: tokenUsage.promptTokens,
-          completionTokens: tokenUsage.completionTokens,
-          totalTokens: tokenUsage.totalTokens,
-          model: aiConfig.model || 'gpt-4o-mini',
-          cost: (tokenUsage.totalTokens / 1000000) * 3,
-        },
-      });
-
-      return data.choices[0]?.message?.content || 'No response generated.';
+      return result.content || chatbot.behavior?.fallbackMessage || 'No response generated.';
     } catch (error) {
-      console.error('AI call failed:', error);
+      console.error('AI call failed:', error instanceof Error ? error.message : '');
       return chatbot.behavior?.fallbackMessage || "I'm sorry, something went wrong. Please try again.";
     }
   }

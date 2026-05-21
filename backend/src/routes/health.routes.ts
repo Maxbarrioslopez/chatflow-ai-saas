@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { config } from '../config';
 
 export const healthRouter = Router();
 
@@ -25,7 +26,12 @@ healthRouter.get('/', async (_req: Request, res: Response) => {
     checks.redis = 'unavailable';
   }
 
-  checks.openai = process.env.OPENAI_API_KEY ? 'configured' : 'not configured';
+  const provider = config.ai.provider || 'openai';
+  const hasKey = provider === 'openrouter'
+    ? !!config.ai.openrouterKey
+    : !!config.ai.openaiKey;
+
+  checks[`ai_${provider}`] = hasKey ? 'configured' : 'not configured';
 
   const allHealthy = Object.values(checks).every((v) => v === 'connected' || v === 'configured');
 
@@ -33,6 +39,7 @@ healthRouter.get('/', async (_req: Request, res: Response) => {
     status: allHealthy ? 'ok' : 'degraded',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
+    provider,
     checks,
   });
 });

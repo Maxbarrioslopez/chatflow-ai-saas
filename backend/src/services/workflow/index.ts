@@ -1,5 +1,6 @@
 import { prisma } from '../prisma';
 import { AppError } from '../../common/errors';
+import { callChatCompletion } from '../ai/chat-completions';
 
 export interface WorkflowNode {
   id: string;
@@ -122,22 +123,13 @@ export class WorkflowService {
     const filledPrompt = this.fillTemplate(prompt, context);
 
     try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: model || 'gpt-4o-mini',
-          messages: [{ role: 'user', content: filledPrompt }],
-        }),
-      });
-
-      const data = await response.json() as any;
-      context.aiResult = data.choices[0]?.message?.content || '';
+      const result = await callChatCompletion(
+        [{ role: 'user', content: filledPrompt }],
+        { model: model || undefined },
+      );
+      context.aiResult = result.content;
     } catch (error) {
-      console.error('AI node error:', error);
+      console.error('AI node error:', error instanceof Error ? error.message : '');
     }
   }
 

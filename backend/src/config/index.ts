@@ -1,5 +1,8 @@
 import dotenv from 'dotenv';
-dotenv.config({ path: '../../.env' });
+import path from 'path';
+const envPath = path.resolve(process.cwd(), '../.env');
+dotenv.config({ path: envPath, override: true });
+console.log('[Config] Loading .env from:', envPath);
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -47,6 +50,7 @@ export const config = {
   ai: {
     openaiKey: process.env.OPENAI_API_KEY,
     anthropicKey: process.env.ANTHROPIC_API_KEY,
+    openrouterKey: process.env.OPENROUTER_API_KEY,
     provider: process.env.AI_PROVIDER || 'openai',
     chatModel: process.env.CHAT_MODEL || 'gpt-4o-mini',
     embeddingModel: process.env.EMBEDDING_MODEL || 'text-embedding-3-small',

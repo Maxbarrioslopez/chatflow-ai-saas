@@ -18,6 +18,11 @@ export function initDocumentProcessingWorker() {
     await processDocument(data);
   });
 
+  if (!worker) {
+    console.warn('[Worker] Document processing worker could not be created (Redis may be unavailable).');
+    return;
+  }
+
   worker.on('completed', (job) => {
     console.log(`[Worker] Document processing completed: ${job.id}`);
   });

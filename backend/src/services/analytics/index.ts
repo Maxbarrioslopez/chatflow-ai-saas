@@ -1,4 +1,5 @@
 import { prisma } from '../prisma';
+import { callChatCompletion } from '../ai/chat-completions';
 
 export interface ConversationInsight {
   conversationId: string;
@@ -26,33 +27,28 @@ export class AnalyticsService {
       .join('\n');
 
     try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            {
-              role: 'system',
-              content: `Analyze this conversation transcript. Return a JSON object with:
+      const result = await callChatCompletion([
+        {
+          role: 'system',
+          content: `Analyze this conversation transcript. Return a JSON object with:
 - summary: 1-2 sentence summary
 - intent: the main user intent
 - sentiment: positive/neutral/negative
 - topics: array of key topics discussed
 - leadScore: 0-100 lead qualification score
-- suggestedTags: array of suggested tags`,
-            },
-            { role: 'user', content: transcript },
-          ],
-          response_format: { type: 'json_object' },
-        }),
-      });
+- suggestedTags: array of suggested tags\n\nTranscript:\n${transcript}`,
+        },
+      ]);
 
-      const data = await response.json() as any;
-      const analysis = JSON.parse(data.choices[0]?.message?.content || '{}');
+      let analysis: any = {};
+      try {
+        analysis = JSON.parse(result.content);
+      } catch {
+        const summaryMatch = result.content.match(/"summary"\s*:\s*"([^"]+)"/);
+        if (summaryMatch) analysis.summary = summaryMatch[1];
+        analysis.intent = 'unknown';
+        analysis.sentiment = 'neutral';
+      }
 
       return {
         conversationId,
